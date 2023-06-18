@@ -19,7 +19,7 @@ def get_historical_data(stock, start_date, end_date):
     bars = api.get_bars(stock, tradeapi.rest.TimeFrame.Day, start_date, end_date, limit=None, adjustment='raw').df
     return bars
 
-def buy_stock(stock, num_shares, row, positions, cash, open_purcahse_prices, index):
+def buy_stock(stock, num_shares, row, positions, cash, index):
     cash -= row['close'] * num_shares
     if stock not in positions:
         positions[stock] = {
@@ -34,24 +34,23 @@ def buy_stock(stock, num_shares, row, positions, cash, open_purcahse_prices, ind
         positions[stock]['purchase_price'].append(row['close'] * num_shares)
         positions[stock]['buy_price'].append(row['close'])
         positions[stock]['purchase_date'].append(index)
-    open_purcahse_prices.append(row['close'] * num_shares)
     return cash
 
-def sell_stock(stock, row, positions, cash, trade_gains_losses, trade_set, index, positions_s):
+def sell_stock(stock, row, positions, cash, trade_gains_losses, trade_set, index, percent_gains_losses):
     for i, purchase_price in enumerate(positions[stock]['purchase_price']):
-        positions_s[stock] = {
-            'sold_price' : row['close'],
-            'sold_date' : index.date
-        }
         sold_price = row['close']
+        
         trade_gains = sold_price * positions[stock]['num_shares'][i] - positions[stock]['purchase_price'][i]
-        #??think this is redundant
         trade_gains_losses[stock].append(trade_gains)
-        #i+1 is the number of purchases per trade (meaning it accumulates as rsi is below 30)
+        percent_gains = trade_gains / positions[stock]['purchase_price'][i]
+        percent_gains_losses[stock].append(percent_gains)
+
+
         print(f"Trade {trade_set}.{i+1} of {stock.capitalize()}:")
         print(f"Purchased on {positions[stock]['purchase_date'][i].date()} for ${positions[stock]['buy_price'][i]:.2f}")
         print(f"Sold on {index.date()} for ${sold_price:.2f}")
         print(f"Trade gains from {stock} trade {trade_set}.{i + 1}, ${float(trade_gains):.2f}")
+        print(f"You made %{(percent_gains * 100):.2f}")
         print(f" ")
     cash += row['close'] * sum(positions[stock]['num_shares'])
     del positions[stock]
@@ -84,6 +83,7 @@ def backtest_strategy(stock_list):
 
 
     trade_gains_losses = defaultdict(list)
+    percent_gains_losses = defaultdict(list)
     stock_prices = defaultdict(list)
     rsi_values = defaultdict(list)
 
@@ -92,7 +92,6 @@ def backtest_strategy(stock_list):
     num_shares = 1
     positions = {}  # The stocks you currently own
     positions_s = {}
-    open_purchase_prices = []  # The price at which you bought the current positions
     trade_set = 0 #tells you what group of trades you are on for the stock (all stocks in one group are sold together)
 
     initial_balance = cash  # Keep track of your initial balance
@@ -106,10 +105,10 @@ def backtest_strategy(stock_list):
                 continue
             #buy and sell conditions
             if row['rsi'] < 30:
-                cash = buy_stock(stock, num_shares, row, positions, cash, open_purchase_prices, index)
+                cash = buy_stock(stock, num_shares, row, positions, cash,  index)
             elif stock in positions and row['rsi'] > 65:
                 trade_set += 1
-                cash = sell_stock(stock, row, positions, cash, trade_gains_losses, trade_set, index, positions_s)
+                cash = sell_stock(stock, row, positions, cash, trade_gains_losses, trade_set, index, percent_gains_losses)
             stock_prices[stock].append(row['close'])
             rsi_values[stock].append(row['rsi'])
 
