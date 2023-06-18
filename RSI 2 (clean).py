@@ -19,32 +19,46 @@ def get_historical_data(stock, start_date, end_date):
     bars = api.get_bars(stock, tradeapi.rest.TimeFrame.Day, start_date, end_date, limit=None, adjustment='raw').df
     return bars
 
-def buy_stock(stock, num_shares, row, positions, cash, count, open_purcahse_prices):
+def buy_stock(stock, num_shares, row, positions, cash, open_purcahse_prices, index):
     cash -= row['close'] * num_shares
     if stock not in positions:
         positions[stock] = {
             'num_shares': [num_shares],
+            #purchase price includes price of all shares, this will change if I change share amount
             'purchase_price': [row['close'] * num_shares],
-            'purchase_date': [row.index]
+            'purchase_date': [index],
+            'buy_price' : [row['close']]
         }
     else:
         positions[stock]['num_shares'].append(num_shares)
         positions[stock]['purchase_price'].append(row['close'] * num_shares)
-    count += 1
+        positions[stock]['buy_price'].append(row['close'])
+        positions[stock]['purchase_date'].append(index)
     open_purcahse_prices.append(row['close'] * num_shares)
-    return cash, count
+    return cash
 
-def sell_stock(stock, row, positions, cash, trade_gains_losses, count, trade_set):
+def sell_stock(stock, row, positions, cash, trade_gains_losses, trade_set, index, positions_s):
     for i, purchase_price in enumerate(positions[stock]['purchase_price']):
-        trade_gains = row['close'] * positions[stock]['num_shares'][i] - purchase_price
+        positions_s[stock] = {
+            'sold_price' : row['close'],
+            'sold_date' : index.date
+        }
+        sold_price = row['close']
+        trade_gains = sold_price * positions[stock]['num_shares'][i] - positions[stock]['purchase_price'][i]
+        #??think this is redundant
         trade_gains_losses[stock].append(trade_gains)
+        #i+1 is the number of purchases per trade (meaning it accumulates as rsi is below 30)
+        print(f"Trade {trade_set}.{i+1} of {stock.capitalize()}:")
+        print(f"Purchased on {positions[stock]['purchase_date'][i].date()} for ${positions[stock]['buy_price'][i]:.2f}")
+        print(f"Sold on {index.date()} for ${sold_price:.2f}")
         print(f"Trade gains from {stock} trade {trade_set}.{i + 1}, ${float(trade_gains):.2f}")
+        print(f" ")
     cash += row['close'] * sum(positions[stock]['num_shares'])
     del positions[stock]
     return cash
 
 #function to display all metrics
-def display_metrics(stock, row, positions, cash, trade_gains_losses, count, trade_set, sell_price):
+def display_metrics(stock, row, positions, cash, trade_gains_losses, trade_set, sell_price):
     for i, purchase_price in enumerate(positions[stock]['purchase_price']):
         print(purchase_price)
 
@@ -75,9 +89,9 @@ def backtest_strategy(stock_list):
 
 
     cash = 100000  # Initialize the amount of cash you have
-    count = 0
     num_shares = 1
     positions = {}  # The stocks you currently own
+    positions_s = {}
     open_purchase_prices = []  # The price at which you bought the current positions
     trade_set = 0 #tells you what group of trades you are on for the stock (all stocks in one group are sold together)
 
@@ -92,10 +106,10 @@ def backtest_strategy(stock_list):
                 continue
             #buy and sell conditions
             if row['rsi'] < 30:
-                cash, count = buy_stock(stock, num_shares, row, positions, cash, count, open_purchase_prices)
+                cash = buy_stock(stock, num_shares, row, positions, cash, open_purchase_prices, index)
             elif stock in positions and row['rsi'] > 65:
                 trade_set += 1
-                cash = sell_stock(stock, row, positions, cash, trade_gains_losses, count, trade_set)
+                cash = sell_stock(stock, row, positions, cash, trade_gains_losses, trade_set, index, positions_s)
             stock_prices[stock].append(row['close'])
             rsi_values[stock].append(row['rsi'])
 
