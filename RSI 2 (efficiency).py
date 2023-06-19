@@ -55,11 +55,16 @@ def sell_stock(stock, row, positions, cash, trade_gains_losses, trade_set, index
     del positions[stock]
     return cash
 
-#function to display all metrics
-def display_metrics(stock, row, positions, cash, trade_gains_losses, trade_set, sell_price):
-    for i, purchase_price in enumerate(positions[stock]['purchase_price']):
-        print(purchase_price)
+#function gives you two efficiency metrics, total and average
+def eff_metrics(stock, percent_gains_losses):
+    for stock, gains in percent_gains_losses.items():
+        ave_efficiency = sum(gains) / len(gains)
+        total_efficiency = sum(gains)
+        print(f"{stock} has an average efficiency of: %{(ave_efficiency * 100):.2f}")
+        print(f"{stock} has an total efficiency of: %{(total_efficiency * 100):.2f}")
+        print(f"numer of trades: {len(gains)}")
 
+    return ave_efficiency, total_efficiency
 
 def rsi(data, periods=14):
     delta = data.diff()
@@ -113,18 +118,7 @@ def backtest_strategy(stock_list):
 
     final_balance = cash
 
-    for stock, gains in percent_gains_losses.items():
-        ave_efficiency = sum(gains) / len(gains)
-        total_efficiency = sum(gains)
-        print(f"{stock} has an average efficiency of: %{(ave_efficiency * 100):.2f}")
-        print(f"{stock} has an total efficiency of: %{(total_efficiency * 100):.2f}")
-
-    
-    #print(percent_gains_losses.items())
-
-    # Calculate total gains/losses per stock
-    for stock in trade_gains_losses:
-        print(f"Total gains/losses for {stock}: {sum(trade_gains_losses[stock])}")
+    eff_metrics(stock, percent_gains_losses)
 
     # Calculate the value of your remaining positions
     for stock in positions:
