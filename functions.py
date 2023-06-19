@@ -16,3 +16,12 @@ def rsi(data, periods=14):
     rs = avg_gain / avg_loss
     return 100 - (100 / (1 + rs))
 
+def eff_metrics(stock, percent_gains_losses):
+    for stock, gains in percent_gains_losses.items():
+        ave_efficiency = sum(gains) / len(gains)
+        total_efficiency = sum(gains)
+        print(f"{stock} has an average efficiency of: %{(ave_efficiency * 100):.2f}")
+        print(f"{stock} has an total efficiency of: %{(total_efficiency * 100):.2f}")
+        print(f"numer of trades: {len(gains)}")
+
+    return ave_efficiency, total_efficiency
