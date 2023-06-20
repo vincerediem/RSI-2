@@ -113,11 +113,11 @@ def backtest_strategy(stock_list):
 
     eff_metrics(stock, percent_gains_losses)
 
-    # Calculate the value of your remaining positions
-    for stock in positions:
+    # Does not include remaining shares, they dont effect efficiency
+    '''for stock in positions:
         for i, price in enumerate(positions[stock]['purchase_price']):
             print(f"You have shares worth ${price / positions[stock]['num_shares'][i]} at end of period")
-
+'''
     return final_balance, initial_balance
 
 
