@@ -58,8 +58,8 @@ def eff_metrics(stock, percent_gains_losses, positions_eff):
     for stock, gains in percent_gains_losses.items():
         ave_efficiency = sum(gains) / len(gains)
         total_efficiency = sum(gains)
-        #print(f"{stock} has an average efficiency of: %{(ave_efficiency * 100):.2f}"
-        #    f" and total efficiency of: %{(total_efficiency * 100):.2f}")
+
+        #creates a dict  to store eff metrics for later sorting
         positions_eff[stock] = {
             'ave eff' : ave_efficiency,
             'tot eff' : total_efficiency
