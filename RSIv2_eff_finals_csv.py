@@ -124,8 +124,10 @@ def backtest_strategy(stock_list):
     #sorts all positions in dictionary with eff data
     sorted_positions_eff = sorted(positions_eff.items(), key=lambda x: x[1]['ave eff'], reverse=True)
     #prints sorted positions
-    for item in sorted_positions_eff:
-        print(item)
+    for stock, stock_info in sorted_positions_eff:
+        print(f"{stock} ave eff: {stock_info['ave eff'] * 100:.2f}"
+            f" tot eff: {stock_info['tot eff'] * 100:.2f}")
+
 
     return final_balance, initial_balance
 
