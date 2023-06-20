@@ -54,12 +54,16 @@ def sell_stock(stock, row, positions, cash, trade_gains_losses, trade_set, index
     return cash
 
 #function gives you two efficiency metrics, total and average
-def eff_metrics(stock, percent_gains_losses):
+def eff_metrics(stock, percent_gains_losses, positions_eff):
     for stock, gains in percent_gains_losses.items():
         ave_efficiency = sum(gains) / len(gains)
         total_efficiency = sum(gains)
-        print(f"{stock} has an average efficiency of: %{(ave_efficiency * 100):.2f}"
-            f" and total efficiency of: %{(total_efficiency * 100):.2f}")
+        #print(f"{stock} has an average efficiency of: %{(ave_efficiency * 100):.2f}"
+        #    f" and total efficiency of: %{(total_efficiency * 100):.2f}")
+        positions_eff[stock] = {
+            'ave eff' : ave_efficiency,
+            'tot eff' : total_efficiency
+        }
 
     return ave_efficiency, total_efficiency
 
@@ -92,7 +96,7 @@ def backtest_strategy(stock_list):
     cash = 100000  # Initialize the amount of cash you have
     num_shares = 1
     positions = {}  # The stocks you currently own
-    positions_s = {}
+    positions_eff = {} # stocks and eff metrics to rank later
     trade_set = 0 #tells you what group of trades you are on for the stock (all stocks in one group are sold together)
 
     initial_balance = cash  # Keep track of your initial balance
@@ -115,12 +119,13 @@ def backtest_strategy(stock_list):
 
     final_balance = cash
 
-    eff_metrics(stock, percent_gains_losses)
+    eff_metrics(stock, percent_gains_losses, positions_eff)
 
-    # Does not include remaining share for eff
-    '''for stock in positions:
-        for i, price in enumerate(positions[stock]['purchase_price']):
-            print(f"You have {stock} shares worth ${price / positions[stock]['num_shares'][i]} at end of period")'''
+    #sorts all positions in dictionary with eff data
+    sorted_positions_eff = sorted(positions_eff.items(), key=lambda x: x[1]['ave eff'], reverse=True)
+    #prints sorted positions
+    for item in sorted_positions_eff:
+        print(item)
 
     return final_balance, initial_balance
 
