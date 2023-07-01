@@ -11,8 +11,7 @@ BASE_URL = 'https://paper-api.alpaca.markets'
 
 api = tradeapi.REST(API_KEY, SECRET_KEY, base_url=BASE_URL, api_version='v2')
 
-def stock_list():
-    input_str = input("Enter stocks separated by space: ")
+def stock_list(input_str):
     # Split the string and convert each value to integer, creating an array
     stock_list = input_str.split()
     return stock_list
@@ -134,9 +133,6 @@ def rsi(data, periods=14):
     return 100 - (100 / (1 + rs))
 
 def backtest_strategy(stock_list):
-    
-    #set stocklist function
-    stock_list = stock_list()
 
     start_date, end_date = set_timeframe()
 
@@ -176,7 +172,7 @@ def backtest_strategy(stock_list):
     return final_balance, initial_balance, stock, row, positions, cash, trade_gains_losses
 
 
-
 if __name__ == '__main__':
-    final_balance, initial_balance, stock, row, positions, cash, trade_gains_losses = backtest_strategy(stock_list)
+    stocks = input("Enter stocks separated by space: ")
+    final_balance, initial_balance, stock, row, positions, cash, trade_gains_losses = backtest_strategy(stock_list(stocks))
     display_final_metrics(final_balance, initial_balance, stock, row, positions, cash, trade_gains_losses)
