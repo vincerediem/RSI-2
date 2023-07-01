@@ -99,29 +99,36 @@ def sell_stock(stock, row, positions, cash, trade_gains_losses, positions_sold, 
     return cash
 
 def trade_metrics(stock, row, positions, cash, trade_gains_losses, trade_set, index, percent_gains_losses, positions_sold):
+    trades_metrics = []
     for i, _ in enumerate(positions_sold[stock]['purchase_price']):
-        print(f"Trade {trade_set}.{i+1} of {stock.capitalize()}:")
-        print(f"Purchased on {positions_sold[stock]['purchase_date'][i].date()} for ${positions_sold[stock]['buy_price'][i]:.2f}")
-        print(f"Sold on {positions_sold[stock]['sold_date'][i].date()} for ${positions_sold[stock]['sold_price'][i]:.2f}")
-        print(f"Trade gains from {stock} trade {trade_set}.{i + 1}, ${float(positions_sold[stock]['trade_gains'][i]):.2f}")
-        print(f"You made %{(positions_sold[stock]['percent_gain'][i] * 100):.2f}")
-        print(f" ")
+        trade = {
+            'trade_set': f"{trade_set}.{i+1}",
+            'stock': stock.capitalize(),
+            'purchase_date': positions_sold[stock]['purchase_date'][i].date(),
+            'purchase_price': positions_sold[stock]['buy_price'][i],
+            'sold_date': positions_sold[stock]['sold_date'][i].date(),
+            'sold_price': positions_sold[stock]['sold_price'][i],
+            'trade_gains': positions_sold[stock]['trade_gains'][i],
+            'percent_gain': positions_sold[stock]['percent_gain'][i] * 100
+        }
+        trades_metrics.append(trade)
+    return trades_metrics
     
 #function to display final metrics
 def display_final_metrics(final_balance, initial_balance, stock, row, positions, cash, trade_gains_losses):
-    metrics = {}
+    final_metrics = {}
     for stock in positions:
         for i, price in enumerate(positions[stock]['purchase_price']):
-            metrics[f"{stock}_final_share_price"] = price / positions[stock]['num_shares'][i]
+            final_metrics[f"{stock}_final_share_price"] = price / positions[stock]['num_shares'][i]
 
     for stock in trade_gains_losses:
-        metrics[f"{stock}_total_gains_losses"] = sum(trade_gains_losses[stock])
+        final_metrics[f"{stock}_total_gains_losses"] = sum(trade_gains_losses[stock])
 
-    metrics['initial_balance'] = initial_balance
-    metrics['final_balance'] = final_balance
-    metrics['profit_percent'] = ((final_balance - initial_balance) / initial_balance) * 100
-    metrics['profit_absolute'] = final_balance - initial_balance
-    return metrics
+    final_metrics['initial_balance'] = initial_balance
+    final_metrics['final_balance'] = final_balance
+    final_metrics['profit_percent'] = ((final_balance - initial_balance) / initial_balance) * 100
+    final_metrics['profit_absolute'] = final_balance - initial_balance
+    return final_metrics
 
 
 def rsi(data, periods=14):
