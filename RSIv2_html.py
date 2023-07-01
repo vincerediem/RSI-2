@@ -100,18 +100,19 @@ def sell_stock(stock, row, positions, cash, trade_gains_losses, positions_sold, 
 
 def trade_metrics(stock, row, positions, cash, trade_gains_losses, trade_set, index, percent_gains_losses, positions_sold):
     trades_metrics = []
-    for i, _ in enumerate(positions_sold[stock]['purchase_price']):
-        trade = {
-            'trade_set': f"{trade_set}.{i+1}",
-            'stock': stock.capitalize(),
-            'purchase_date': positions_sold[stock]['purchase_date'][i].date(),
-            'purchase_price': positions_sold[stock]['buy_price'][i],
-            'sold_date': positions_sold[stock]['sold_date'][i].date(),
-            'sold_price': positions_sold[stock]['sold_price'][i],
-            'trade_gains': positions_sold[stock]['trade_gains'][i],
-            'percent_gain': positions_sold[stock]['percent_gain'][i] * 100
-        }
-        trades_metrics.append(trade)
+    if positions_sold.get(stock) is not None:  # Only proceed if the stock exists in positions_sold
+        for i, _ in enumerate(positions_sold[stock]['purchase_price']):
+            trade = {
+                'trade_set': f"{trade_set}.{i+1}",
+                'stock': stock.capitalize(),
+                'purchase_date': positions_sold[stock]['purchase_date'][i].date(),
+                'purchase_price': positions_sold[stock]['buy_price'][i],
+                'sold_date': positions_sold[stock]['sold_date'][i].date(),
+                'sold_price': positions_sold[stock]['sold_price'][i],
+                'trade_gains': positions_sold[stock]['trade_gains'][i],
+                'percent_gain': positions_sold[stock]['percent_gain'][i] * 100
+            }
+            trades_metrics.append(trade)
     return trades_metrics
     
 #function to display final metrics
