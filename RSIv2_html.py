@@ -106,19 +106,22 @@ def trade_metrics(stock, row, positions, cash, trade_gains_losses, trade_set, in
         print(f"Trade gains from {stock} trade {trade_set}.{i + 1}, ${float(positions_sold[stock]['trade_gains'][i]):.2f}")
         print(f"You made %{(positions_sold[stock]['percent_gain'][i] * 100):.2f}")
         print(f" ")
-        #displays metrics then deletes position
     
 #function to display final metrics
 def display_final_metrics(final_balance, initial_balance, stock, row, positions, cash, trade_gains_losses):
+    metrics = {}
     for stock in positions:
         for i, price in enumerate(positions[stock]['purchase_price']):
-            print(f"You have shares worth ${price / positions[stock]['num_shares'][i]} at end of period")
+            metrics[f"{stock}_final_share_price"] = price / positions[stock]['num_shares'][i]
+
     for stock in trade_gains_losses:
-        print(f"Total gains/losses for {stock}: {sum(trade_gains_losses[stock]):.2f}")
-    print(f"Initial account balance: ${initial_balance:.2f}")
-    print(f"Final account balance: ${final_balance:.2f}")
-    print(f"You made: {((final_balance - initial_balance) / initial_balance) * 100:.2f}%")
-    print(f"You made: {(final_balance - initial_balance):.2f}$")
+        metrics[f"{stock}_total_gains_losses"] = sum(trade_gains_losses[stock])
+
+    metrics['initial_balance'] = initial_balance
+    metrics['final_balance'] = final_balance
+    metrics['profit_percent'] = ((final_balance - initial_balance) / initial_balance) * 100
+    metrics['profit_absolute'] = final_balance - initial_balance
+    return metrics
 
 
 def rsi(data, periods=14):
