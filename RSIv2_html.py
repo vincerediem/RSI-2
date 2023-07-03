@@ -116,7 +116,7 @@ def trade_metrics(stock, row, positions, cash, trade_gains_losses, trade_set, in
     return trades_metrics
     
 #function to display final metrics
-def display_final_metrics(final_balance, initial_balance, stock, row, positions, cash, trade_gains_losses):
+def return_final_metrics(final_balance, initial_balance, stock, row, positions, cash, trade_gains_losses):
     final_metrics = {}
     for stock in positions:
         for i, price in enumerate(positions[stock]['purchase_price']):
@@ -186,4 +186,4 @@ def backtest_strategy(stock_list):
 if __name__ == '__main__':
     stocks = input("Enter stocks separated by space: ")
     final_balance, initial_balance, stock, row, positions, cash, trade_gains_losses = backtest_strategy(stock_list(stocks))
-    display_final_metrics(final_balance, initial_balance, stock, row, positions, cash, trade_gains_losses)
+    return_final_metrics(final_balance, initial_balance, stock, row, positions, cash, trade_gains_losses)
