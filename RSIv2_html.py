@@ -98,7 +98,7 @@ def sell_stock(stock, row, positions, cash, trade_gains_losses, positions_sold, 
     del positions[stock]
     return cash
 
-def trade_metrics(stock, row, positions, cash, trade_gains_losses, trade_set, index, percent_gains_losses, positions_sold):
+'''def trade_metrics(stock, trade_set, positions_sold):
     trades_metrics = []
     if positions_sold.get(stock) is not None:  # Only proceed if the stock exists in positions_sold
         for i, _ in enumerate(positions_sold[stock]['purchase_price']):
@@ -113,10 +113,10 @@ def trade_metrics(stock, row, positions, cash, trade_gains_losses, trade_set, in
                 'percent_gain': positions_sold[stock]['percent_gain'][i] * 100
             }
             trades_metrics.append(trade)
-    return trades_metrics
+    return trades_metrics'''
     
 #function to display final metrics
-def return_final_metrics(final_balance, initial_balance, stock, row, positions, cash, trade_gains_losses):
+def return_final_metrics(final_balance, initial_balance, stock, positions, trade_gains_losses):
     final_metrics = {}
     for stock in positions:
         for i, price in enumerate(positions[stock]['purchase_price']):
@@ -174,16 +174,16 @@ def backtest_strategy(stock_list):
             elif sell_condition(stock, positions, row):
                 trade_set += 1
                 cash = sell_stock(stock, row, positions, cash, trade_gains_losses, positions_sold, index, percent_gains_losses, trade_set)
-                trade_metrics(stock, row, positions, cash, trade_gains_losses, trade_set, index, percent_gains_losses, positions_sold)
+                #trade_metrics(stock, trade_set, positions_sold)
             stock_prices[stock].append(row['close'])
             rsi_values[stock].append(row['rsi'])
 
     final_balance = cash
 
-    return final_balance, initial_balance, stock, row, positions, cash, trade_gains_losses
+    return final_balance, initial_balance, stock, positions, trade_gains_losses, positions_sold
 
 
 if __name__ == '__main__':
     stocks = input("Enter stocks separated by space: ")
-    final_balance, initial_balance, stock, row, positions, cash, trade_gains_losses = backtest_strategy(stock_list(stocks))
-    return_final_metrics(final_balance, initial_balance, stock, row, positions, cash, trade_gains_losses)
+    final_balance, initial_balance, stock, positions, trade_gains_losses, positions_sold = backtest_strategy(stock_list(stocks))
+    return_final_metrics(final_balance, initial_balance, stock, positions, trade_gains_losses)
