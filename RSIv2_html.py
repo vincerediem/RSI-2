@@ -68,6 +68,7 @@ def buy_stock(stock, num_shares, row, positions, cash, index):
 def sell_stock(stock, row, positions, cash, trade_gains_losses, positions_sold, index, percent_gains_losses, trade_set):
     for i, purchase_price in enumerate(positions[stock]['purchase_price']):
         sold_price = row['close']
+        sold_date = index
         
         trade_gains = sold_price * positions[stock]['num_shares'][i] - positions[stock]['purchase_price'][i]
         trade_gains_losses[stock].append(trade_gains)
@@ -80,7 +81,7 @@ def sell_stock(stock, row, positions, cash, trade_gains_losses, positions_sold, 
             'sold_price': [sold_price],
             'purchase_price': [positions[stock]['purchase_price'][i]],
             'purchase_date': [positions[stock]['purchase_date'][i]],
-            'sold_date' : [index],
+            'sold_date' : [sold_date],
             'buy_price' : [row['close']],
             'percent_gain' : [percent_gains],
             'trade_gains' : [trade_gains]
@@ -89,7 +90,7 @@ def sell_stock(stock, row, positions, cash, trade_gains_losses, positions_sold, 
             positions_sold[stock]['sold_price'].append(sold_price)
             positions_sold[stock]['purchase_price'].append(positions[stock]['purchase_price'][i])
             positions_sold[stock]['purchase_date'].append(positions[stock]['purchase_date'][i])
-            positions_sold[stock]['sold_date'].append(index)
+            positions_sold[stock]['sold_date'].append(sold_date)
             positions_sold[stock]['buy_price'].append(row['close'])
             positions_sold[stock]['percent_gain'].append(percent_gains)
             positions_sold[stock]['trade_gains'].append(trade_gains)
@@ -98,7 +99,8 @@ def sell_stock(stock, row, positions, cash, trade_gains_losses, positions_sold, 
     del positions[stock]
     return cash
 
-'''def trade_metrics(stock, trade_set, positions_sold):
+#makes trades a list of dicts per trade, and creates a dataframe
+def trade_metrics(stock, trade_set, positions_sold):
     trades_metrics = []
     if positions_sold.get(stock) is not None:  # Only proceed if the stock exists in positions_sold
         for i, _ in enumerate(positions_sold[stock]['purchase_price']):
@@ -113,7 +115,9 @@ def sell_stock(stock, row, positions, cash, trade_gains_losses, positions_sold, 
                 'percent_gain': positions_sold[stock]['percent_gain'][i] * 100
             }
             trades_metrics.append(trade)
-    return trades_metrics'''
+    df = pd.DataFrame(trades_metrics)
+    print(df)
+    return trades_metrics
     
 #function to display final metrics
 def return_final_metrics(final_balance, initial_balance, stock, positions, trade_gains_losses):
@@ -180,10 +184,11 @@ def backtest_strategy(stock_list):
 
     final_balance = cash
 
-    return final_balance, initial_balance, stock, positions, trade_gains_losses, positions_sold
+    return final_balance, initial_balance, stock, positions, trade_gains_losses, positions_sold, trade_set
 
 
 if __name__ == '__main__':
     stocks = input("Enter stocks separated by space: ")
-    final_balance, initial_balance, stock, positions, trade_gains_losses, positions_sold = backtest_strategy(stock_list(stocks))
+    final_balance, initial_balance, stock, positions, trade_gains_losses, positions_sold, trade_set = backtest_strategy(stock_list(stocks))
     return_final_metrics(final_balance, initial_balance, stock, positions, trade_gains_losses)
+    trade_metrics(stock, trade_set, positions_sold)
