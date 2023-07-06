@@ -104,7 +104,7 @@ def sell_stock(stock, row, positions, cash, trade_gains_losses, positions_sold, 
     return cash
 
 #makes trades a list of dicts per trade, and creates a dataframe
-def trade_metrics(stock, trade_set, positions_sold):
+def trade_metrics(stock, positions_sold):
     trades_metrics = []
     if positions_sold.get(stock) is not None:  # Only proceed if the stock exists in positions_sold
         for i, _ in enumerate(positions_sold[stock]['purchase_price']):
@@ -120,8 +120,7 @@ def trade_metrics(stock, trade_set, positions_sold):
             }
             trades_metrics.append(trade)
     df = pd.DataFrame(trades_metrics)
-    print(df)
-    return trades_metrics
+    return trades_metrics, df
     
 #function to display final metrics
 def return_final_metrics(final_balance, initial_balance, stock, positions, trade_gains_losses):
@@ -195,4 +194,4 @@ if __name__ == '__main__':
     stocks = input("Enter stocks separated by space: ")
     final_balance, initial_balance, stock, positions, trade_gains_losses, positions_sold, trade_set = backtest_strategy(stock_list(stocks))
     return_final_metrics(final_balance, initial_balance, stock, positions, trade_gains_losses)
-    trade_metrics(stock, trade_set, positions_sold)
+    trade_metrics(stock, positions_sold)
