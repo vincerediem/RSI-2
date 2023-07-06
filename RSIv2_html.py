@@ -84,7 +84,9 @@ def sell_stock(stock, row, positions, cash, trade_gains_losses, positions_sold, 
             'sold_date' : [sold_date],
             'buy_price' : [row['close']],
             'percent_gain' : [percent_gains],
-            'trade_gains' : [trade_gains]
+            'trade_gains' : [trade_gains],
+            'trade_set' : [trade_set],
+            'trade_count' : [i+1]  # Add trade_count to track the trade count within the trade set
             }
         else:
             positions_sold[stock]['sold_price'].append(sold_price)
@@ -94,6 +96,8 @@ def sell_stock(stock, row, positions, cash, trade_gains_losses, positions_sold, 
             positions_sold[stock]['buy_price'].append(row['close'])
             positions_sold[stock]['percent_gain'].append(percent_gains)
             positions_sold[stock]['trade_gains'].append(trade_gains)
+            positions_sold[stock]['trade_set'].append(trade_set)
+            positions_sold[stock]['trade_count'].append(i+1)
                 
     cash += row['close'] * sum(positions[stock]['num_shares'])
     del positions[stock]
@@ -105,7 +109,7 @@ def trade_metrics(stock, trade_set, positions_sold):
     if positions_sold.get(stock) is not None:  # Only proceed if the stock exists in positions_sold
         for i, _ in enumerate(positions_sold[stock]['purchase_price']):
             trade = {
-                'trade_set': f"{trade_set}.{i+1}",
+                'trade_id': f"{positions_sold[stock]['trade_set'][i]}.{positions_sold[stock]['trade_count'][i]}", #trade set and number of trade
                 'stock': stock.capitalize(),
                 'purchase_date': positions_sold[stock]['purchase_date'][i].date(),
                 'purchase_price': positions_sold[stock]['buy_price'][i],
