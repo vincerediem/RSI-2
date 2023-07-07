@@ -123,15 +123,23 @@ def trade_metrics(stock, positions_sold):
     return trades_metrics, closed_df
     
 #function to display final metrics
-def return_final_metrics(final_balance, initial_balance, stock, positions, trade_gains_losses):
+def final_metrics(final_balance, initial_balance, stock, positions, trade_gains_losses, percent_gains_losses):
     final_metrics = {}
+
+
     for stock in positions:
         for i, price in enumerate(positions[stock]['purchase_price']):
             final_metrics[f"{stock}_final_share_price"] = price / positions[stock]['num_shares'][i]
 
+    #total gains/losses
     for stock in trade_gains_losses:
         final_metrics[f"{stock}_total_gains_losses"] = sum(trade_gains_losses[stock])
 
+    for stock, gains in percent_gains_losses.items():
+        final_metrics[f'{stock}_ave_efficiency'] = sum(gains) / len(gains)
+        final_metrics[f'{stock}_total_efficiency'] = sum(gains)
+
+    #portfolio change metrics
     final_metrics['initial_balance'] = initial_balance
     final_metrics['final_balance'] = final_balance
     final_metrics['profit_percent'] = ((final_balance - initial_balance) / initial_balance) * 100
@@ -187,13 +195,14 @@ def backtest_strategy(stock_list):
 
     final_balance = cash
 
+    #create dataframe of positions dict
     open_df=pd.DataFrame(positions)
 
-    return final_balance, initial_balance, stock, positions, trade_gains_losses, positions_sold, open_df
+    return final_balance, initial_balance, stock, positions, trade_gains_losses, positions_sold, open_df, percent_gains_losses
 
 
 if __name__ == '__main__':
     stocks = input("Enter stocks separated by space: ")
-    final_balance, initial_balance, stock, positions, trade_gains_losses, positions_sold = backtest_strategy(stock_list(stocks))
-    return_final_metrics(final_balance, initial_balance, stock, positions, trade_gains_losses)
-    trade_metrics(stock, positions_sold)
+    final_balance, initial_balance, stock, positions, trade_gains_losses, positions_sold, percent_gains_losses = backtest_strategy(stock_list(stocks))
+    trades_metrics, closed_df = trade_metrics(stock, positions_sold)
+    final_metrics(final_balance, initial_balance, stock, positions, trade_gains_losses, percent_gains_losses)
