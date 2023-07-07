@@ -119,8 +119,8 @@ def trade_metrics(stock, positions_sold):
                 'percent_gain': positions_sold[stock]['percent_gain'][i] * 100
             }
             trades_metrics.append(trade)
-    df = pd.DataFrame(trades_metrics)
-    return trades_metrics, df
+    closed_df = pd.DataFrame(trades_metrics)
+    return trades_metrics, closed_df
     
 #function to display final metrics
 def return_final_metrics(final_balance, initial_balance, stock, positions, trade_gains_losses):
@@ -187,11 +187,13 @@ def backtest_strategy(stock_list):
 
     final_balance = cash
 
-    return final_balance, initial_balance, stock, positions, trade_gains_losses, positions_sold, trade_set
+    open_df=pd.DataFrame(positions)
+
+    return final_balance, initial_balance, stock, positions, trade_gains_losses, positions_sold, open_df
 
 
 if __name__ == '__main__':
     stocks = input("Enter stocks separated by space: ")
-    final_balance, initial_balance, stock, positions, trade_gains_losses, positions_sold, trade_set = backtest_strategy(stock_list(stocks))
+    final_balance, initial_balance, stock, positions, trade_gains_losses, positions_sold = backtest_strategy(stock_list(stocks))
     return_final_metrics(final_balance, initial_balance, stock, positions, trade_gains_losses)
     trade_metrics(stock, positions_sold)

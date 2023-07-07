@@ -116,13 +116,14 @@ def backtest_strategy(stock_list):
 
     # Calculate total gains/losses per stock
     for stock in trade_gains_losses:
-        print(f"Total gains/losses for {stock}: {sum(trade_gains_losses[stock])}")
+        print(f"Total gains/losses for {stock}: {sum(trade_gains_losses[stock]):.2f}\n")
 
     # Calculate the value of your remaining positions
     for stock in positions:
         for i, price in enumerate(positions[stock]['purchase_price']):
-            print(f"You have shares worth ${price / positions[stock]['num_shares'][i]} at end of period")
-
+            print(f"You have shares worth ${price * positions[stock]['num_shares'][i]} at end of period")
+            print(f"Purchased on {positions[stock]['purchase_date'][i].date()} for ${positions[stock]['buy_price'][i]}\n")
+ 
     return final_balance, initial_balance
 
 
