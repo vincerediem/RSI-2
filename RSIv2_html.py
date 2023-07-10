@@ -13,30 +13,33 @@ BASE_URL = 'https://paper-api.alpaca.markets'
 
 api = tradeapi.REST(API_KEY, SECRET_KEY, base_url=BASE_URL, api_version='v2')
 
-def plot_graphs(stock_prices, rsi_values, buy_dates, buy_prices, sell_dates, sell_prices):
-    for stock, prices in stock_prices.items():
-        fig = make_subplots(rows=2, cols=1, subplot_titles=("Stock price", "RSI"))
-        
-        date_range = pd.date_range(start=buy_dates[stock][0], end=buy_dates[stock][-1])
-        
-        # Stock prices
-        fig.add_trace(go.Scatter(x=date_range, y=prices, mode='lines', name='Stock Price'), row=1, col=1)
-        
-        # Buy points
-        fig.add_trace(go.Scatter(x=buy_dates[stock], y=buy_prices[stock], mode='markers', name='Buy', marker=dict(color='green')), row=1, col=1)
-        
-        # Sell points
-        fig.add_trace(go.Scatter(x=sell_dates[stock], y=sell_prices[stock], mode='markers', name='Sell', marker=dict(color='red')), row=1, col=1)
+def plot_graphs2(historical_data, buy_dates, buy_prices, sell_dates, sell_prices, start_date, end_date):
+    close_prices = historical_data['close']
+    date_range = historical_data.index
 
-        # RSI values
-        fig.add_trace(go.Scatter(x=date_range, y=rsi_values[stock], mode='lines', name='RSI'), row=2, col=1)
-        
-        # RSI 35 and 70 lines
-        fig.add_trace(go.Scatter(x=date_range, y=[35]*len(rsi_values[stock]), mode='lines', name='RSI 35', line=dict(color='green')), row=2, col=1)
-        fig.add_trace(go.Scatter(x=date_range, y=[70]*len(rsi_values[stock]), mode='lines', name='RSI 70', line=dict(color='red')), row=2, col=1)
+    fig = make_subplots(rows=2, cols=1, subplot_titles=("Stock price", "RSI"))
 
-        fig.update_layout(height=600, width=800, title_text=stock)
-        fig.show()
+    # Stock prices
+    fig.add_trace(go.Scatter(x=date_range, y=close_prices, mode='lines', name='Stock Price'), row=1, col=1)
+
+    # Buy points
+    for buy_date, buy_price in zip(buy_dates['close'], buy_prices['close']):
+        fig.add_trace(go.Scatter(x=[buy_date], y=[buy_price], mode='markers', name='Buy', marker=dict(color='green')), row=1, col=1)
+
+    # Sell points
+    for sell_date, sell_price in zip(sell_dates['close'], sell_prices['close']):
+        fig.add_trace(go.Scatter(x=[sell_date], y=[sell_price], mode='markers', name='Sell', marker=dict(color='red')), row=1, col=1)
+
+    # RSI values (replace with your RSI data)
+    fig.add_trace(go.Scatter(x=date_range, y=[0]*len(close_prices), mode='lines', name='RSI'), row=2, col=1)
+
+    # RSI 35 and 70 lines (replace with your RSI lines)
+    fig.add_trace(go.Scatter(x=date_range, y=[35]*len(close_prices), mode='lines', name='RSI 35', line=dict(color='green')), row=2, col=1)
+    fig.add_trace(go.Scatter(x=date_range, y=[70]*len(close_prices), mode='lines', name='RSI 70', line=dict(color='red')), row=2, col=1)
+
+    fig.update_layout(height=600, width=800, title_text='Stock Prices')
+    fig.show()
+
 
 
 def stock_list(input_str):
@@ -221,18 +224,24 @@ def backtest_strategy(stock_list):
             #buy and sell conditions
             if buy_condition(row):
                 cash = buy_stock(stock, num_shares, row, positions, cash,  index)
-                buy_dates[stock].append(index)
+                buy_dates[stock].append(pd.to_datetime(index))
                 buy_prices[stock].append(row['close'])
             elif sell_condition(stock, positions, row):
                 trade_set += 1
                 cash = sell_stock(stock, row, positions, cash, trade_gains_losses, positions_sold, index, percent_gains_losses, trade_set)
-                sell_dates[stock].append(index)
+                sell_dates[stock].append(pd.to_datetime(index))
                 sell_prices[stock].append(row['close'])
             stock_prices[stock].append(row['close'])
             rsi_values[stock].append(row['rsi'])
 
-    plot_graphs(stock_prices, rsi_values, buy_dates, buy_prices, sell_dates, sell_prices)
-
+    #plot_graphs(stock_prices, rsi_values, buy_dates, buy_prices, sell_dates, sell_prices, start_date, end_date)
+    
+    #debugg pannel:
+    print(historical_data)
+    plot_graphs2(historical_data, buy_dates, buy_prices, sell_dates, sell_prices, start_date, end_date)
+    print(start_date)
+    print(end_date)
+    #end
 
     final_balance = cash
 
