@@ -4,12 +4,40 @@ import datetime
 from pytz import timezone
 import matplotlib.pyplot as plt
 from collections import defaultdict
+import plotly.graph_objs as go
+from plotly.subplots import make_subplots
 
 API_KEY = 'PK3ABIZYDFUBONQF8FCW'
 SECRET_KEY = 'sinlF6QYXaoVKA6Y6WFqTyx8zfYyuwrpwgO2WL7v'
 BASE_URL = 'https://paper-api.alpaca.markets'
 
 api = tradeapi.REST(API_KEY, SECRET_KEY, base_url=BASE_URL, api_version='v2')
+
+def plot_graphs(stock_prices, rsi_values, buy_dates, buy_prices, sell_dates, sell_prices):
+    for stock, prices in stock_prices.items():
+        fig = make_subplots(rows=2, cols=1, subplot_titles=("Stock price", "RSI"))
+        
+        date_range = pd.date_range(start=buy_dates[stock][0], end=buy_dates[stock][-1])
+        
+        # Stock prices
+        fig.add_trace(go.Scatter(x=date_range, y=prices, mode='lines', name='Stock Price'), row=1, col=1)
+        
+        # Buy points
+        fig.add_trace(go.Scatter(x=buy_dates[stock], y=buy_prices[stock], mode='markers', name='Buy', marker=dict(color='green')), row=1, col=1)
+        
+        # Sell points
+        fig.add_trace(go.Scatter(x=sell_dates[stock], y=sell_prices[stock], mode='markers', name='Sell', marker=dict(color='red')), row=1, col=1)
+
+        # RSI values
+        fig.add_trace(go.Scatter(x=date_range, y=rsi_values[stock], mode='lines', name='RSI'), row=2, col=1)
+        
+        # RSI 35 and 70 lines
+        fig.add_trace(go.Scatter(x=date_range, y=[35]*len(rsi_values[stock]), mode='lines', name='RSI 35', line=dict(color='green')), row=2, col=1)
+        fig.add_trace(go.Scatter(x=date_range, y=[70]*len(rsi_values[stock]), mode='lines', name='RSI 70', line=dict(color='red')), row=2, col=1)
+
+        fig.update_layout(height=600, width=800, title_text=stock)
+        fig.show()
+
 
 def stock_list(input_str):
     # Split the string and convert each value to integer, creating an array
@@ -169,6 +197,11 @@ def backtest_strategy(stock_list):
     stock_prices = defaultdict(list)
     rsi_values = defaultdict(list)
 
+    buy_dates = defaultdict(list)
+    buy_prices = defaultdict(list)
+    sell_dates = defaultdict(list)
+    sell_prices = defaultdict(list)
+
 
     cash = 100000  # Initialize the amount of cash you have
     num_shares = 1
@@ -188,12 +221,18 @@ def backtest_strategy(stock_list):
             #buy and sell conditions
             if buy_condition(row):
                 cash = buy_stock(stock, num_shares, row, positions, cash,  index)
+                buy_dates[stock].append(index)
+                buy_prices[stock].append(row['close'])
             elif sell_condition(stock, positions, row):
                 trade_set += 1
                 cash = sell_stock(stock, row, positions, cash, trade_gains_losses, positions_sold, index, percent_gains_losses, trade_set)
-                #trade_metrics(stock, trade_set, positions_sold)
+                sell_dates[stock].append(index)
+                sell_prices[stock].append(row['close'])
             stock_prices[stock].append(row['close'])
             rsi_values[stock].append(row['rsi'])
+
+    plot_graphs(stock_prices, rsi_values, buy_dates, buy_prices, sell_dates, sell_prices)
+
 
     final_balance = cash
 
@@ -205,6 +244,6 @@ def backtest_strategy(stock_list):
 
 if __name__ == '__main__':
     stocks = input("Enter stocks separated by space: ")
-    final_balance, initial_balance, stock, positions, trade_gains_losses, positions_sold, percent_gains_losses = backtest_strategy(stock_list(stocks))
+    final_balance, initial_balance, stock, positions, trade_gains_losses, positions_sold, open_df, percent_gains_losses = backtest_strategy(stock_list(stocks))
     trades_metrics, closed_df = trade_metrics(stock, positions_sold)
     final_metrics(final_balance, initial_balance, stock, positions, trade_gains_losses, percent_gains_losses)
