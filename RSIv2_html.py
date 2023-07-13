@@ -13,7 +13,7 @@ BASE_URL = 'https://paper-api.alpaca.markets'
 
 api = tradeapi.REST(API_KEY, SECRET_KEY, base_url=BASE_URL, api_version='v2')
 
-def plot_graphs2(historical_data, buy_dates, buy_prices, sell_dates, sell_prices, start_date, end_date):
+def plot_graphs(historical_data, buy_dates, buy_prices, sell_dates, sell_prices, start_date, end_date):
     close_prices = historical_data['close']
     date_range = historical_data.index
 
@@ -22,24 +22,24 @@ def plot_graphs2(historical_data, buy_dates, buy_prices, sell_dates, sell_prices
     # Stock prices
     fig.add_trace(go.Scatter(x=date_range, y=close_prices, mode='lines', name='Stock Price'), row=1, col=1)
 
-    # Buy points
-    for buy_date, buy_price in zip(buy_dates['close'], buy_prices['close']):
-        fig.add_trace(go.Scatter(x=[buy_date], y=[buy_price], mode='markers', name='Buy', marker=dict(color='green')), row=1, col=1)
+    # RSI values
+    rsi_values = historical_data['rsi']
+    fig.add_trace(go.Scatter(x=date_range, y=rsi_values, mode='lines', name='RSI'), row=2, col=1)
 
-    # Sell points
-    for sell_date, sell_price in zip(sell_dates['close'], sell_prices['close']):
-        fig.add_trace(go.Scatter(x=[sell_date], y=[sell_price], mode='markers', name='Sell', marker=dict(color='red')), row=1, col=1)
+    # RSI 35 and 70 lines
+    fig.add_trace(go.Scatter(x=date_range, y=[35]*len(rsi_values), mode='lines', name='RSI 35', line=dict(color='green')), row=2, col=1)
+    fig.add_trace(go.Scatter(x=date_range, y=[70]*len(rsi_values), mode='lines', name='RSI 70', line=dict(color='red')), row=2, col=1)
 
-    # RSI values (replace with your RSI data)
-    fig.add_trace(go.Scatter(x=date_range, y=[0]*len(close_prices), mode='lines', name='RSI'), row=2, col=1)
+    # Buy dates and prices
+    for stock, dates in buy_dates.items():
+        fig.add_trace(go.Scatter(x=dates, y=buy_prices[stock], mode='markers', name=f'Buy ({stock})', marker=dict(color='green', symbol='triangle-up')), row=1, col=1)
 
-    # RSI 35 and 70 lines (replace with your RSI lines)
-    fig.add_trace(go.Scatter(x=date_range, y=[35]*len(close_prices), mode='lines', name='RSI 35', line=dict(color='green')), row=2, col=1)
-    fig.add_trace(go.Scatter(x=date_range, y=[70]*len(close_prices), mode='lines', name='RSI 70', line=dict(color='red')), row=2, col=1)
+    # Sell dates and prices
+    for stock, dates in sell_dates.items():
+        fig.add_trace(go.Scatter(x=dates, y=sell_prices[stock], mode='markers', name=f'Sell ({stock})', marker=dict(color='red', symbol='triangle-down')), row=1, col=1)
 
-    fig.update_layout(height=600, width=800, title_text='Stock Prices')
+    fig.update_layout(height=600, width=800, title_text='Stock Prices and RSI')
     fig.show()
-
 
 
 def stock_list(input_str):
@@ -233,14 +233,10 @@ def backtest_strategy(stock_list):
                 sell_prices[stock].append(row['close'])
             stock_prices[stock].append(row['close'])
             rsi_values[stock].append(row['rsi'])
-
-    #plot_graphs(stock_prices, rsi_values, buy_dates, buy_prices, sell_dates, sell_prices, start_date, end_date)
     
     #debugg pannel:
     print(historical_data)
-    plot_graphs2(historical_data, buy_dates, buy_prices, sell_dates, sell_prices, start_date, end_date)
-    print(start_date)
-    print(end_date)
+    plot_graphs(historical_data, buy_dates, buy_prices, sell_dates, sell_prices, start_date, end_date)
     #end
 
     final_balance = cash
