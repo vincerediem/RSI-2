@@ -45,7 +45,7 @@ def plot_graphs(historical_data, buy_dates, buy_prices, sell_dates, sell_prices,
 
 
     # Update hover interaction
-    fig.update_layout(hovermode='x')
+    fig.update_layout(hovermode='x unified')
 
     fig.update_layout(height=600, width=800, title_text='Stock Prices and RSI')
     fig.show()
