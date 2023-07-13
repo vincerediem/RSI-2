@@ -17,7 +17,7 @@ def plot_graphs(historical_data, buy_dates, buy_prices, sell_dates, sell_prices,
     close_prices = historical_data['close']
     date_range = historical_data.index
 
-    fig = make_subplots(rows=2, cols=1, shared_xaxes=True, subplot_titles=("Stock price", "RSI"))
+    fig = make_subplots(rows=2, cols=1, shared_xaxes=True, subplot_titles=("Stock price", "RSI"), vertical_spacing=0.05, row_heights=[0.6, 0.4])
 
     # Stock prices
     fig.add_trace(go.Scatter(x=date_range, y=close_prices, mode='lines', name='Stock Price'), row=1, col=1)
@@ -33,10 +33,16 @@ def plot_graphs(historical_data, buy_dates, buy_prices, sell_dates, sell_prices,
     # Buy dates and prices
     for stock, dates in buy_dates.items():
         fig.add_trace(go.Scatter(x=dates, y=buy_prices[stock], mode='markers', name=f'Buy ({stock})', marker=dict(color='green', symbol='triangle-up')), row=1, col=1)
+        rsi_buy_values = rsi_values.loc[dates]
+        fig.add_trace(go.Scatter(x=dates, y=rsi_buy_values, mode='markers', name=f'Buy ({stock})', marker=dict(color='green', symbol='triangle-up')), row=2, col=1)
+
 
     # Sell dates and prices
     for stock, dates in sell_dates.items():
         fig.add_trace(go.Scatter(x=dates, y=sell_prices[stock], mode='markers', name=f'Sell ({stock})', marker=dict(color='red', symbol='triangle-down')), row=1, col=1)
+        rsi_sell_values = rsi_values.loc[dates]
+        fig.add_trace(go.Scatter(x=dates, y=rsi_sell_values, mode='markers', name=f'Sell ({stock})', marker=dict(color='red', symbol='triangle-down')), row=2, col=1)
+
 
     # Update hover interaction
     fig.update_layout(hovermode='x')
