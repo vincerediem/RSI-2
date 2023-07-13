@@ -27,8 +27,8 @@ def plot_graphs(historical_data, buy_dates, buy_prices, sell_dates, sell_prices,
     fig.add_trace(go.Scatter(x=date_range, y=rsi_values, mode='lines', name='RSI'), row=2, col=1)
 
     # RSI 35 and 70 lines
-    fig.add_trace(go.Scatter(x=date_range, y=[35]*len(rsi_values), mode='lines', name='RSI 35', line=dict(color='green')), row=2, col=1)
-    fig.add_trace(go.Scatter(x=date_range, y=[70]*len(rsi_values), mode='lines', name='RSI 70', line=dict(color='red')), row=2, col=1)
+    fig.add_trace(go.Scatter(x=date_range, y=[30]*len(rsi_values), mode='lines', name='RSI 35', line=dict(color='green', width=1)), row=2, col=1)
+    fig.add_trace(go.Scatter(x=date_range, y=[65]*len(rsi_values), mode='lines', name='RSI 70', line=dict(color='red', width=1)), row=2, col=1)
 
     # Buy dates and prices
     for stock, dates in buy_dates.items():
