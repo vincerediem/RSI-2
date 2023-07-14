@@ -48,7 +48,7 @@ def plot_graphs(historical_data, buy_dates, buy_prices, sell_dates, sell_prices,
     fig.update_layout(hovermode='x unified')
 
     fig.update_layout(height=600, width=800, title_text='Stock Prices and RSI')
-    fig.show()
+    return fig
 
 
 
@@ -245,8 +245,7 @@ def backtest_strategy(stock_list):
             rsi_values[stock].append(row['rsi'])
     
     #debugg pannel:
-    print(historical_data)
-    plot_graphs(historical_data, buy_dates, buy_prices, sell_dates, sell_prices, start_date, end_date)
+
     #end
 
     final_balance = cash
