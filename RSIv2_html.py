@@ -245,7 +245,7 @@ def backtest_strategy(stock_list):
             rsi_values[stock].append(row['rsi'])
     
     #debugg pannel:
-
+    fig = plot_graphs(historical_data, buy_dates, buy_prices, sell_dates, sell_prices, start_date, end_date)
     #end
 
     final_balance = cash
@@ -253,11 +253,11 @@ def backtest_strategy(stock_list):
     #create dataframe of positions dict
     open_df=pd.DataFrame(positions)
 
-    return final_balance, initial_balance, stock, positions, trade_gains_losses, positions_sold, open_df, percent_gains_losses
+    return final_balance, initial_balance, stock, positions, trade_gains_losses, positions_sold, open_df, percent_gains_losses, fig
 
 
 if __name__ == '__main__':
     stocks = input("Enter stocks separated by space: ")
-    final_balance, initial_balance, stock, positions, trade_gains_losses, positions_sold, open_df, percent_gains_losses = backtest_strategy(stock_list(stocks))
+    final_balance, initial_balance, stock, positions, trade_gains_losses, positions_sold, open_df, percent_gains_losses, fig = backtest_strategy(stock_list(stocks))
     trades_metrics, closed_df = trade_metrics(stock, positions_sold)
     final_metrics(final_balance, initial_balance, stock, positions, trade_gains_losses, percent_gains_losses)
