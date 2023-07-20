@@ -32,9 +32,9 @@ def plot_graphs(historical_data, buy_dates, buy_prices, sell_dates, sell_prices,
 
     # Buy dates and prices
     for stock, dates in buy_dates.items():
-        fig.add_trace(go.Scatter(x=dates, y=buy_prices[stock], mode='markers', name=f'Buy ({stock})', marker=dict(color='green', symbol='triangle-up')), row=1, col=1)
+        fig.add_trace(go.Scatter(x=dates, y=buy_prices[stock], mode='markers', name=f'Buy ({stock})', marker=dict(color='limegreen', symbol='triangle-up')), row=1, col=1)
         rsi_buy_values = rsi_values.loc[dates]
-        fig.add_trace(go.Scatter(x=dates, y=rsi_buy_values, mode='markers', name=f'Buy ({stock})', marker=dict(color='green', symbol='triangle-up')), row=2, col=1)
+        fig.add_trace(go.Scatter(x=dates, y=rsi_buy_values, mode='markers', name=f'Buy ({stock})', marker=dict(color='limegreen', symbol='triangle-up')), row=2, col=1)
 
 
     # Sell dates and prices
